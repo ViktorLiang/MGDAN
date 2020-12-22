@@ -1,12 +1,14 @@
 # MGDAN
 
-A multi-task human parsing network.
+Mask Guided Deformation Adaptive Network for Human Parsing.
+An efficient strong baseline for human parsing.
 
 ## Dependencies
 
 * Pytorch-1.0.1
 * cuda-10.1
 * Deformable convolution from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
+A deformable convolution zip file(from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0) has been provided in 'utils/ops/Deformable-Convolution-V2-PyTorch-master.zip'. Uncompress and build with 'sh make.sh', then rename the folder to 'dcn'.
 
 ## Dataset
 
@@ -18,12 +20,15 @@ Editing configuration for dataset in function 'dataset_pathes' in dataset/datase
 
 ## Training:
 Train on LIP:
+
   python train.py --config-file configs/cfg_lip.yaml
 
 Train on CIHP:
+
   python train.py --config-file configs/cfg_cihp.yaml
 
 Train on Pascal-Person-Part:
+
   python train.py --config-file configs/cfg_pascal.yaml
 
 ## Testing:
@@ -31,14 +36,17 @@ Download trained from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbX
 Save trained model in directory 'trained_models'.
 
 Evaluation of LIP:
+
   python evaluate.py --config-file configs/cfg_lip.yaml
 
 
 Evaluation of CIHP:
+
   python evaluate.py --config-file configs/cfg_cihp.yaml
 
 
 Evaluation of Pascal-Person-Part:
+
   python evaluate_pascal.py --config-file configs/cfg_pascal.yaml
 
 
