@@ -11,7 +11,7 @@ An efficient strong baseline for human parsing.
 * Deformable convolution from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
 
 A deformable convolution models in zip file from above link has been provided in 'utils/ops/Deformable-Convolution-V2-PyTorch-master.zip'. 
-Uncompress it and build with 'sh make.sh', then rename the folder name to 'dcn'.
+Uncompress it and build with 'sh make.sh', then rename the folder to 'dcn'.
 
 ## Dataset
 
@@ -44,7 +44,7 @@ Train on Pascal-Person-Part:
 
 ## Testing:
 Downloading trained from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing
-,saving the trained model in directory 'trained_models'.
+,saving them in directory 'trained_models'.
 
 Evaluation on LIP:
 
