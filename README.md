@@ -11,7 +11,7 @@ An efficient strong baseline for human parsing.
 * Deformable convolution from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
 
 A deformable convolution models in zip file from above link has been provided in 'utils/ops/Deformable-Convolution-V2-PyTorch-master.zip'. 
-Uncompress and build with 'sh make.sh', then rename the folder name to 'dcn'.
+Uncompress it and build with 'sh make.sh', then rename the folder name to 'dcn'.
 
 ## Dataset
 
@@ -19,7 +19,9 @@ Download LIP and CIHP from http://sysu-hcp.net/lip/overview.php
 
 Pascal Person-Part from http://roozbehm.info/pascal-parts/pascal-parts.html
 
-Editing configuration for datasets in function 'dataset_pathes' in 'dataset/dataset_utils.py'
+Editing 'INPUT:DATA_ROOT' in 'configs/cfg_datasetName.yaml' to your dataset directory.
+
+Editing configuration for different split(e.g.'train' or 'val') in function 'dataset_pathes' in 'dataset/dataset_utils.py'
 
 ## Training:
 Train on LIP:
