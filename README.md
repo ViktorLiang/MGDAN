@@ -24,6 +24,10 @@ Editing 'INPUT:DATA_ROOT' in 'configs/cfg_datasetName.yaml' to your dataset dire
 Editing configuration for different split(e.g.'train' or 'val') in function 'dataset_pathes' in 'dataset/dataset_utils.py'
 
 ## Training:
+Downloading the ResNet101-imagenet.pth from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing.
+
+Editing 'TRAIN:RESTORE_FROM' in 'configs/cfg_datasetName.yaml' to your ResNet101-imagenet.pth path.
+
 Train on LIP:
 
   python train.py --config-file configs/cfg_lip.yaml
