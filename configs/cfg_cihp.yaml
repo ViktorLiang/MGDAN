@@ -33,7 +33,7 @@ TEST:
   BATCH_SIZE: 1
   GPU: [0,]
   INPUT_SIZE: [448, 448]
-  RESTORE_FROM: '/home/ly/workspace/git/segmentation/human_parsing/TextureShapeParsing_CIHP/snapshots/shared_test/test01_CIHP_grids_448/patch2_2/CIHP_epoch_89.pth'
+  RESTORE_FROM: './trained_models/CIHP_trained.pth'
   #PRED_SAVE_DIR: './results/CIHP/mgdan'
   BUILD_MODEL: 'build_shared_patch_model'
   AUG_MIRROR: False
