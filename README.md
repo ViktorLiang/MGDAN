@@ -18,28 +18,28 @@ Editing configuration for dataset in function 'dataset_pathes' in dataset/datase
 
 ## Training:
 Train on LIP:
-python train.py --config-file configs/cfg_lip.yaml
+  python train.py --config-file configs/cfg_lip.yaml
 
 Train on CIHP:
-python train.py --config-file configs/cfg_cihp.yaml
+  python train.py --config-file configs/cfg_cihp.yaml
 
 Train on Pascal-Person-Part:
-python train.py --config-file configs/cfg_pascal.yaml
+  python train.py --config-file configs/cfg_pascal.yaml
 
 ## Testing:
 Download trained from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing
 Save trained model in directory 'trained_models'.
 
 Evaluation of LIP:
-python evaluate.py --config-file configs/cfg_lip.yaml
+  python evaluate.py --config-file configs/cfg_lip.yaml
 
 
 Evaluation of CIHP:
-python evaluate.py --config-file configs/cfg_cihp.yaml
+  python evaluate.py --config-file configs/cfg_cihp.yaml
 
 
 Evaluation of Pascal-Person-Part:
-python evaluate_pascal.py --config-file configs/cfg_pascal.yaml
+  python evaluate_pascal.py --config-file configs/cfg_pascal.yaml
 
 
 ## Trained Model
