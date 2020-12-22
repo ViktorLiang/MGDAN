@@ -24,14 +24,27 @@ python train.py --config-file configs/cfg_cihp.yaml
 python train.py --config-file configs/cfg_pascal.yaml
 
 ## Testing:
+Download trained from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing
+Save trained model in directory 'trained_models'.
+
+For evaluation of LIP:
 
 python evaluate.py --config-file configs/cfg_lip.yaml
+
+
+For Evaluation of CIHP:
+
 python evaluate.py --config-file configs/cfg_cihp.yaml
+
+
+For Evaluation of Pascal-Person-Part:
+
 python evaluate_pascal.py --config-file configs/cfg_pascal.yaml
+
 
 ## Trained Model
 
-Trained Model can be found here:https://drive.google.com/drive/folders/1SuU--ycSWOEYxdygmojkAY95vfrRtk9J?usp=sharing
+Trained Model can be found here:https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing
 
 Some codes borrowed from https://github.com/liutinglt/CE2P
 
