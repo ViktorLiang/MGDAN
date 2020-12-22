@@ -1,7 +1,6 @@
 # MGDAN
-# MaskHumanParsing
 
-A multi-task human parsing network. We archieve competitive performance on both single and multiple human parsing datasets.
+A multi-task human parsing network.
 
 ## Dependencies
 
@@ -18,27 +17,28 @@ Pascal Person-Part from http://roozbehm.info/pascal-parts/pascal-parts.html
 Editing configuration for dataset in function 'dataset_pathes' in dataset/dataset_utils.py
 
 ## Training:
-
+Train on LIP:
 python train.py --config-file configs/cfg_lip.yaml
+
+Train on CIHP:
 python train.py --config-file configs/cfg_cihp.yaml
+
+Train on Pascal-Person-Part:
 python train.py --config-file configs/cfg_pascal.yaml
 
 ## Testing:
 Download trained from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing
 Save trained model in directory 'trained_models'.
 
-For evaluation of LIP:
-
+Evaluation of LIP:
 python evaluate.py --config-file configs/cfg_lip.yaml
 
 
-For Evaluation of CIHP:
-
+Evaluation of CIHP:
 python evaluate.py --config-file configs/cfg_cihp.yaml
 
 
-For Evaluation of Pascal-Person-Part:
-
+Evaluation of Pascal-Person-Part:
 python evaluate_pascal.py --config-file configs/cfg_pascal.yaml
 
 
