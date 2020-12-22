@@ -43,20 +43,20 @@ Train on Pascal-Person-Part:
   python train.py --config-file configs/cfg_pascal.yaml
 
 ## Testing:
-Download trained from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing
-Save trained model in directory 'trained_models'.
+Downloading trained from https://drive.google.com/drive/folders/1A7rSUC_B78Nbt7rRbXiODbOb5zLMTDZS?usp=sharing
+,saving the trained model in directory 'trained_models'.
 
-Evaluation of LIP:
+Evaluation on LIP:
 
   python evaluate.py --config-file configs/cfg_lip.yaml
 
 
-Evaluation of CIHP:
+Evaluation on CIHP:
 
   python evaluate.py --config-file configs/cfg_cihp.yaml
 
 
-Evaluation of Pascal-Person-Part:
+Evaluation on Pascal-Person-Part:
 
   python evaluate_pascal.py --config-file configs/cfg_pascal.yaml
 
