@@ -16,7 +16,7 @@ TRAIN:
   BATCH_SIZE: 2
   EPOCHES: 200
   START_EPOCH: 0
-  SNAPSHOT_DIR: './snapshots/pascal_shared/'
+  SNAPSHOT_DIR: './snapshots/pascal_multiTask/'
   # RESTORE_FROM: '/home/ly/workspace/git/segmentation/human_parsing/TextureShapeParsing_LIP/snapshots/shared_test/test01_startup/LIP_epoch_199.pth'
   RESTORE_FROM: './dataset/resnet101-imagenet.pth'
   NUM_CLASSES: 7
@@ -38,7 +38,7 @@ TEST:
   GPU: [0,]
   INPUT_SIZE: [448, 448]
   AUG_MIRROR: True
-  RESTORE_FROM: '/home/ly/workspace/git/segmentation/human_parsing/MDCE_Pascal/snapshots/snapshots_pascal/indp_grids/edgeGrids22_448/bestiou_PASCAL_PERSON_epoch_174.pth'
+  RESTORE_FROM: './trained_models/PASCAL_PERSON_trained.pth'
   #PRED_SAVE_DIR: './results/CIHP/mgdan'
   BUILD_MODEL: 'build_multiTask_model'
 

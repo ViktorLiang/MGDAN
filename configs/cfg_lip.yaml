@@ -31,7 +31,7 @@ TEST:
   BATCH_SIZE: 1
   GPU: [0,]
   INPUT_SIZE: [390, 390]
-  RESTORE_FROM: '/home/ly/workspace/git/segmentation/human_parsing/TextureShapeParsing_LIP/snapshots/shared_test/test01_startup/LIP_epoch_197.pth'
+  RESTORE_FROM: './trained_models/LIP_trained.pth'
   #PRED_SAVE_DIR: './results/CIHP/mgdan'
   BUILD_MODEL: 'build_shared_model'
   AUG_MIRROR: False
