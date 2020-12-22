@@ -1,6 +1,7 @@
 # MGDAN
 
 Mask Guided Deformation Adaptive Network for Human Parsing.
+
 An efficient strong baseline for human parsing.
 
 ## Dependencies
@@ -8,7 +9,9 @@ An efficient strong baseline for human parsing.
 * Pytorch-1.0.1
 * cuda-10.1
 * Deformable convolution from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
-A deformable convolution zip file(from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0) has been provided in 'utils/ops/Deformable-Convolution-V2-PyTorch-master.zip'. Uncompress and build with 'sh make.sh', then rename the folder to 'dcn'.
+
+A deformable convolution models in zip file from aforementioned link has been provided in 'utils/ops/Deformable-Convolution-V2-PyTorch-master.zip'. 
+Uncompress and build with 'sh make.sh', then rename the folder name to 'dcn'.
 
 ## Dataset
 
@@ -16,16 +19,18 @@ Download LIP and CIHP from http://sysu-hcp.net/lip/overview.php
 
 Pascal Person-Part from http://roozbehm.info/pascal-parts/pascal-parts.html
 
-Editing configuration for dataset in function 'dataset_pathes' in dataset/dataset_utils.py
+Editing configuration for datasets in function 'dataset_pathes' in dataset/dataset_utils.py
 
 ## Training:
 Train on LIP:
 
   python train.py --config-file configs/cfg_lip.yaml
+  
 
 Train on CIHP:
 
   python train.py --config-file configs/cfg_cihp.yaml
+  
 
 Train on Pascal-Person-Part:
 
