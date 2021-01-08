@@ -27,7 +27,7 @@ DATA_LIST_PATH = ''
 IGNORE_LABEL = 255
 NUM_CLASSES = 20
 SNAPSHOT_DIR = ''
-INPUT_SIZE = (390,390)
+INPUT_SIZE = (384,384)
 RESTORE_FROM = ''
 MODEL_TYPE='res101'
 
@@ -79,12 +79,12 @@ def get_arguments():
 def valid(model, valloader, input_size, num_samples, gpus, 
         is_mirror=False, 
         pred_save_dir=None, 
-        only_need_meta=False,
-        with_edge=True):
+        with_edge=True,
+        dataset_name="LIP"):
     model.eval()
 
+    assert dataset_name in ["LIP", "CIHP", "PASCAL_PERSON"]
     print("###num_samples:", num_samples, " input_size:", input_size)
-    # print('###evaluating the {}th parsing result'.format(FINAL_PRED_INDEX)) 
     parsing_preds = np.zeros((num_samples, input_size[0], input_size[1]),
                              dtype=np.uint8)
     scales = np.zeros((num_samples, 2), dtype=np.float32)
@@ -117,15 +117,13 @@ def valid(model, valloader, input_size, num_samples, gpus,
             num_images = image.size(0)
             if pred_save_dir is not None:
                 assert num_images == 1, 'batch size must be 1 when have eval resutls saved.'
-            if index % 200 == 0:
+            if index % 300 == 0:
                 print('%d' % (index * num_images))
 
             c = meta['center'].numpy()
             s = meta['scale'].numpy()
             scales[idx:idx + num_images, :] = s[:, :]
             centers[idx:idx + num_images, :] = c[:, :]
-            if only_need_meta:
-                continue
 
             if is_mirror:
                 image_rev = torch.flip(image, [3])
@@ -148,23 +146,25 @@ def valid(model, valloader, input_size, num_samples, gpus,
                     idx += nums
             else:
                 if is_mirror:
-                    # bsz = outputs[0][FINAL_PRED_INDEX].shape[0]
-                    # prediction_1 = outputs[0][FINAL_PRED_INDEX][:int(bsz/2)]
-                    # prediction_2 = outputs[0][FINAL_PRED_INDEX][int(bsz/2):]
-                    # prediction_rev = torch.flip(prediction_2, [3])
-                    # parsing = (prediction_1 + prediction_rev) / 2
-                    bsz = outputs[0][FINAL_PRED_INDEX].shape[0]
-                    prediction_1 = outputs[0][FINAL_PRED_INDEX][:int(bsz / 2)]
-                    prediction_2 = outputs[0][FINAL_PRED_INDEX][int(bsz / 2):]
-                    prediction_rev = prediction_2
-                    prediction_rev[:, 14] = prediction_2[:, 15]
-                    prediction_rev[:, 15] = prediction_2[:, 14]
-                    prediction_rev[:, 16] = prediction_2[:, 17]
-                    prediction_rev[:, 17] = prediction_2[:, 16]
-                    prediction_rev[:, 18] = prediction_2[:, 19]
-                    prediction_rev[:, 19] = prediction_2[:, 18]
-                    prediction_rev = torch.flip(prediction_rev, [3])
-                    parsing = (prediction_1 + prediction_rev) / 2
+                    if dataset_name in ["LIP", "CIHP"]:
+                        bsz = outputs[0][FINAL_PRED_INDEX].shape[0]
+                        prediction_1 = outputs[0][FINAL_PRED_INDEX][:int(bsz / 2)]
+                        prediction_2 = outputs[0][FINAL_PRED_INDEX][int(bsz / 2):]
+                        prediction_rev = prediction_2
+                        prediction_rev[:, 14] = prediction_2[:, 15]
+                        prediction_rev[:, 15] = prediction_2[:, 14]
+                        prediction_rev[:, 16] = prediction_2[:, 17]
+                        prediction_rev[:, 17] = prediction_2[:, 16]
+                        prediction_rev[:, 18] = prediction_2[:, 19]
+                        prediction_rev[:, 19] = prediction_2[:, 18]
+                        prediction_rev = torch.flip(prediction_rev, [3])
+                        parsing = (prediction_1 + prediction_rev) / 2
+                    else:
+                        bsz = outputs[0][FINAL_PRED_INDEX].shape[0]
+                        prediction_1 = outputs[0][FINAL_PRED_INDEX][:int(bsz/2)]
+                        prediction_2 = outputs[0][FINAL_PRED_INDEX][int(bsz/2):]
+                        prediction_rev = torch.flip(prediction_2, [3])
+                        parsing = (prediction_1 + prediction_rev) / 2
                 else:
                     parsing = outputs[0][FINAL_PRED_INDEX]
                 parsing = interp(parsing).data.cpu().numpy()
@@ -195,15 +195,10 @@ def valid(model, valloader, input_size, num_samples, gpus,
 
                 
 
-    # end_inf = timeit.default_timer()
-    # print(end_inf, start_inf, num_samples)
     print("###FPS", num_samples/seconds_total)
 
     # parsing_preds = parsing_preds[:num_samples, :, :]
-    if not only_need_meta:
-        return parsing_preds, scales, centers
-    else:
-        return None, scales, centers
+    return parsing_preds, scales, centers
 
 
 def run_eval(args, eval_ckpt, save_file=None):
@@ -218,9 +213,7 @@ def run_eval(args, eval_ckpt, save_file=None):
     # h, w = map(int, args.input_size)
 
     input_size = (h, w)
-    # model = build_interpre_model(args, is_train=False)
     model = getattr(build_model, args.TEST.BUILD_MODEL)(args, is_train=False)
-    #print(model)
 
     normalize = transforms.Normalize(mean=args.INPUT.INPUT_MEAN, std=args.INPUT.INPUT_STD)
 
@@ -246,31 +239,23 @@ def run_eval(args, eval_ckpt, save_file=None):
 
     for key, nkey in zip(state_dict_old.keys(), state_dict.keys()):
         if key != nkey:
-            # remove the 'module.' in the 'key'
+            # removing the 'module.' prefix
             state_dict[key[7:]] = deepcopy(state_dict_old[key])
         else:
             state_dict[key] = deepcopy(state_dict_old[key])
-        # print(key, nkey)
-        # keys = nkey.split('.')
-        # if keys[0] == 'seg_rescore_conv':
-        #     del state_dict[nkey]
-        #     print(nkey, ' deleted!')
 
     model.load_state_dict(state_dict)
-
     model.eval()
     model.cuda()
 
     parsing_preds, scales, centers = valid(model, valloader, input_size, num_samples, len(gpus), 
                         is_mirror=args.TEST.AUG_MIRROR, 
                         pred_save_dir=args.TEST.PRED_SAVE_DIR, 
-                        only_need_meta=False,
-                        with_edge=args.MODEL.WITH_EDGE)
+                        with_edge=args.MODEL.WITH_EDGE,
+                        dataset_name=args.INPUT.DATASET_NAME)
     
 
-    # mIoU = compute_mean_ioU(parsing_preds, scales, centers, args.num_classes, args.data_dir, input_size)
     print("####################check point "+eval_ckpt+":")
-
     dpath, dpre = get_pathes(args.INPUT.DATASET_NAME, args.TEST.SPLIT)
     mIoU = compute_mean_ioU_top(parsing_preds, scales, centers, args.INPUT.NUM_CLASSES, args.INPUT.DATA_ROOT, input_size,
                                           split=args.TEST.SPLIT, 

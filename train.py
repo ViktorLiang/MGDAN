@@ -24,8 +24,8 @@ from models import build_model
 
 
 from utils.encoding import DataParallelModel, DataParallelCriterion
-from dataset.datasets_parsing_all import LIPDataSet
-from utils.criterion_refine import CriterionAll
+from dataset.datasets_parsing_new import LIPDataSet
+from utils.criterion_mgdan import CriterionAll
 from utils.utils import decode_parsing, inv_preprocess
 
 def lr_poly(base_lr, iter, max_iter, power, base_lr_ratio=1):
@@ -86,15 +86,6 @@ def main():
             if not i_parts[0] == 'fc':
                 training_state_dict['.'.join(i_parts[0:])] = restore_from_state_dict[i]
         print("###params restored from ResNet {}.".format(args.TRAIN.RESTORE_FROM))
-    elif args.TRAIN.RESTORE_FROM.find('CIHP_epoch_90') >= 0:  # load from finetuned model on other datasets
-        exclude_model = ['layer7', 'seg_rescore_conv']
-        for i, k in enumerate(training_state_dict):
-            if k.split('.')[0] in exclude_model:
-                continue
-
-            training_state_dict[k] = restore_from_state_dict["module."+k]
-            print("module."+k,' loaded')
-
     else:  # resume from checkpoint
         for i in restore_from_state_dict:
             i_parts = i.split('.')
@@ -147,13 +138,12 @@ def main():
                                   pin_memory=True,
                                   drop_last=True)
     total_iters = args.TRAIN.EPOCHES * len(trainloader)
-    # tensor_board_image_size_pars = [int(h // 2.3), int(w // 2.3)]
-    # tensor_board_image_size_edge = [int(h // 2.6), int(w // 2.6)]
 
     criterion = CriterionAll(ignore_index=255, 
                             vis_loss=True, 
                             num_classes=args.TRAIN.NUM_CLASSES, 
-                            with_edge=args.MODEL.WITH_EDGE)
+                            with_edge=args.MODEL.WITH_EDGE,
+                            with_lovasz_loss=True)
     criterion = DataParallelCriterion(criterion)
     criterion.cuda()
 
@@ -165,23 +155,27 @@ def main():
 
             for i_iter, batch in enumerate(trainloader):
                 i_iter += len(trainloader) * epoch
-                if args.MODEL.WITH_EDGE:
-                    images, labels, edges, meta = batch
-                    edges = edges.long().cuda(non_blocking=True)
-                    labels = labels.long().cuda(non_blocking=True)
-                    gt = [labels, edges]
-                else:
-                    images, labels, meta = batch
-                    labels = labels.long().cuda(non_blocking=True)
-                    gt = [labels]
+                images, labels, edges, meta = batch
+                edges = edges.long().cuda(non_blocking=True)
+                labels = labels.long().cuda(non_blocking=True)
+                gt = [labels, edges]
 
                 preds = model(images, i_iter)
 
-                if args.MODEL.WITH_EDGE:
-                    loss, vis_parsing_loss, vis_edge_loss, vis_fg_loss = criterion(preds, gt)
-                else:
-                    loss, vis_parsing_loss, vis_fg_loss = criterion(preds, gt)
+                loss, edge_loss, fg_loss, parsing_loss_1, parsing_loss_2, parsing_loss_3, parsing_loss_4 = criterion(preds, gt) 
 
+                loss_tasks = [edge_loss, fg_loss]
+                vis_tasks_name = ['aux/edge', 'aux/mask']
+                vis_tasks_loss = {}
+                for i, lss in enumerate(loss_tasks):
+                    vis_tasks_loss[vis_tasks_name[i]] = torch.zeros_like(lss).copy_(lss.cpu())
+                
+                loss_details = [parsing_loss_1, parsing_loss_2, parsing_loss_3, parsing_loss_4]
+                vis_details_name = ['parsing/pars_1','parsing/pars_2','parsing/pars_3','parsing/pars_4']
+                vis_details_loss = {}
+                for i, lss in enumerate(loss_details):
+                    vis_details_loss[vis_details_name[i]] = torch.zeros_like(lss).copy_(lss.cpu())
+                
                 lr = adjust_learning_rate(optimizer, i_iter, total_iters, args)
                 optimizer.zero_grad()
                 loss.backward()
@@ -190,11 +184,11 @@ def main():
                 if i_iter % 100 == 0:
                     writer.add_scalar('learning_rate', lr, i_iter)
                     writer.add_scalar('loss_sum', loss.data.cpu().numpy(), i_iter)
-                    writer.add_scalar('vis_parsing_loss', vis_parsing_loss, i_iter)
-                    writer.add_scalar('vis_fg_loss', vis_fg_loss, i_iter)
-                    if args.MODEL.WITH_EDGE:
-                        writer.add_scalar('vis_edge_loss', vis_edge_loss, i_iter)
-                    
+                    for vis_name, lss_value in vis_tasks_loss.items():
+                        writer.add_scalar(vis_name, lss_value, i_iter)
+                    for vis_name, lss_value in vis_details_loss.items():
+                        writer.add_scalar(vis_name, lss_value, i_iter)
+
                 if i_iter % 500 == 0:
                     images_inv = inv_preprocess(images, args.VISUALIZE.SAVE_IMAGES_NUM)
                     labels_colors = decode_parsing(labels, args.VISUALIZE.SAVE_IMAGES_NUM, args.TRAIN.NUM_CLASSES, is_pred=False)
@@ -216,29 +210,28 @@ def main():
                     lab = vutils.make_grid(labels_colors, normalize=False, scale_each=True)
                     pred = vutils.make_grid(preds_colors, normalize=False, scale_each=True)
                     writer.add_image('Images/', img, i_iter)
-                    writer.add_image('Labels/', lab, i_iter)
-                    writer.add_image('Preds/', pred, i_iter)
+                    writer.add_image('LabelParsing/', lab, i_iter)
+                    writer.add_image('PredParsing/', pred, i_iter)
 
-                    if args.MODEL.WITH_EDGE:
-                        edges_colors = decode_parsing(edges, args.VISUALIZE.SAVE_IMAGES_NUM, 2, is_pred=False)
-                        edge = vutils.make_grid(edges_colors, normalize=False, scale_each=True)
-                        pred_edges = decode_parsing(preds[1], args.VISUALIZE.SAVE_IMAGES_NUM, 2, is_pred=True)
-                        pred_edge = vutils.make_grid(pred_edges, normalize=False, scale_each=True)
-                        writer.add_image('Edges/', edge, i_iter)
-                        writer.add_image('PredEdges/', pred_edge, i_iter)
+                    #writting edge logs
+                    edges_colors = decode_parsing(edges, args.VISUALIZE.SAVE_IMAGES_NUM, 2, is_pred=False)
+                    edge = vutils.make_grid(edges_colors, normalize=False, scale_each=True)
+                    pred_edges = decode_parsing(preds[1], args.VISUALIZE.SAVE_IMAGES_NUM, 2, is_pred=True)
+                    pred_edge = vutils.make_grid(pred_edges, normalize=False, scale_each=True)
+                    writer.add_image('LabelEdges/', edge, i_iter)
+                    writer.add_image('PredEdges/', pred_edge, i_iter)
 
-                    if args.MODEL.WITH_FG:
-                        if isinstance(preds[2], list):
-                            pred_fg_ = preds[2][0]
-                        else:
-                            pred_fg_ = preds[2]
-
-                        pred_fg = decode_parsing(pred_fg_, args.VISUALIZE.SAVE_IMAGES_NUM, 2, is_pred=True)
-                        pred_fg = F.interpolate(input=pred_fg.type(torch.float),
-                                                size=(tensor_board_image_size[0], tensor_board_image_size[1]),
-                                                mode='bilinear', align_corners=True)
-                        pred_fg = vutils.make_grid(pred_fg.type(torch.uint8), normalize=False, scale_each=True)
-                        writer.add_image('PredForeground/', pred_fg, i_iter)
+                    #writting mask logs
+                    if isinstance(preds[2], list):
+                        pred_fg_ = preds[2][0]
+                    else:
+                        pred_fg_ = preds[2]
+                    pred_fg = decode_parsing(pred_fg_, args.VISUALIZE.SAVE_IMAGES_NUM, 2, is_pred=True)
+                    pred_fg = F.interpolate(input=pred_fg.type(torch.float),
+                                            size=(tensor_board_image_size[0], tensor_board_image_size[1]),
+                                            mode='bilinear', align_corners=True)
+                    pred_fg = vutils.make_grid(pred_fg.type(torch.uint8), normalize=False, scale_each=True)
+                    writer.add_image('PredMasks/', pred_fg, i_iter)
                 if i_iter % len(trainloader) == 0 or i_iter % 50 == 0:
                     print('iter = {} of {} completed, loss = {}'.format(i_iter, total_iters, loss.data.cpu().numpy()))
 
