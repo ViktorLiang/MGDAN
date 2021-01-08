@@ -58,7 +58,7 @@ Evaluation on CIHP:
 
 Evaluation on Pascal-Person-Part:
 
-  python evaluate_pascal.py --config-file configs/cfg_pascal.yaml
+  python evaluate.py --config-file configs/cfg_pascal.yaml
 
 
 ## Trained Model
