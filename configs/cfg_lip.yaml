@@ -31,7 +31,7 @@ TEST:
   BATCH_SIZE: 1
   GPU: [0,]
   INPUT_SIZE: [384, 384]
-  RESTORE_FROM: './trained_models/bestmiou58.149977_LIP_epoch_149.pth'
+  RESTORE_FROM: './trained_models/LIP_trained.pth'
   #PRED_SAVE_DIR: './results/CIHP/mgdan'
   BUILD_MODEL: 'build_shared_edgeGrids_model'
   AUG_MIRROR: False

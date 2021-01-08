@@ -32,7 +32,7 @@ TEST:
   GPU: [0,]
   INPUT_SIZE: [448, 448]
   AUG_MIRROR: True
-  RESTORE_FROM: './trained_models/bestiou73.4665_PASCAL_PERSON_epoch_162.pth'
+  RESTORE_FROM: './trained_models/PASCAL_PERSON_trained.pth'
   #PRED_SAVE_DIR: './results/CIHP/mgdan'
   BUILD_MODEL: 'build_shared_edgeGrids_model'
 
