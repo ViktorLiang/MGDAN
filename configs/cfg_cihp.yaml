@@ -31,7 +31,7 @@ TEST:
   BATCH_SIZE: 1
   GPU: [0,]
   INPUT_SIZE: [448, 448]
-  RESTORE_FROM: './trained_models/CIHP_epoch_89_miou62.616.pth'
+  RESTORE_FROM: './trained_models/CIHP_trained.pth'
   #PRED_SAVE_DIR: './results/CIHP/mgdan'
   BUILD_MODEL: 'build_shared_edgeMaskGrids_model'
   AUG_MIRROR: False
