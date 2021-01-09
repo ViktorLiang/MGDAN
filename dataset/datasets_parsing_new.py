@@ -134,9 +134,6 @@ class LIPDataSet(data.Dataset):
                 #median blur
                 if random.random() <= self.median_blur_prob:
                     im = cv2_transforms.median_blur(im)
-                #contrast brightness
-                if random.random() <= self.brightness_contrast_prob:
-                    im = cv2_transforms.randomBrightnessContrast(im, brightness=(-0.5,0.5), contrast=(-0.5,0.5))
 
         trans = get_affine_transform(center, s, r, self.crop_size)
         input = cv2.warpAffine(

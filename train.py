@@ -235,7 +235,7 @@ def main():
                 if i_iter % len(trainloader) == 0 or i_iter % 50 == 0:
                     print('iter = {} of {} completed, loss = {}'.format(i_iter, total_iters, loss.data.cpu().numpy()))
 
-            torch.save(model.state_dict(), os.path.join(args.TRAIN.SNAPSHOT_DIR, 'LIP_epoch_' + str(epoch) + '.pth'))
+            torch.save(model.state_dict(), os.path.join(args.TRAIN.SNAPSHOT_DIR, '{}_epoch_{}.pth'.format(args.INPUT.DATASET_NAME, epoch)) )
             end_epoch_time = timeit.default_timer()
             print("epoch {}, {} seconds".format(epoch, end_epoch_time - start_epoch_time))
 
