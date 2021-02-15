@@ -7,7 +7,7 @@ An efficient strong baseline for human parsing.
 ## Dependencies
 
 * Pytorch-1.0.1
-* cuda-10.1
+* cuda-10.0
 * Deformable convolution from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
 
 A deformable convolution models in zip file from above link has been provided in 'utils/ops/Deformable-Convolution-V2-PyTorch-master.zip'. 
